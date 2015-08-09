@@ -1,0 +1,20 @@
+Hi,
+
+This is my first 2600 program, a clone of Tetris. I wrote this using DASM
+to assemble the code and PC Atari 1.5 to test it. Use the joystick to move
+the block and the fire button to rotate it.	I don't know what the speed is
+like on a real VCS as I'm using a 486DX25 to test the code.
+There's currently no sound ( no soundcard ) and I've tried to keep it all
+under 2k.
+
+Feel free to do anything you like with this code, I only wrote it to pass
+away a few days. If you have any comments feel free to Email me at:
+
+Colin_Hughes@interactive.sony.com
+
+
+Cheers,
+
+CJH.
+
+10th June 1997.
