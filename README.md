@@ -1,7 +1,7 @@
 Tetris for Atari 2600
 =====================
 
-This repo is a slight improvement over the origianl code by [Colin Hughes](./TETRIS26.TXT)
+This repo is a slight improvement over the original code by [Colin Hughes](./TETRIS26.TXT)
 
 #Build
 This repo contains the [latest ROM](./tetris.bin) but if you want to play with the source code
