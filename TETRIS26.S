@@ -109,7 +109,6 @@ eov			ds 0				;End of variables
 ;
 ;Title line routines are macros, it's easier that way
 ;
-
 	MAC	line
 
 	sta	WSYNC			;0
@@ -200,6 +199,17 @@ eov			ds 0				;End of variables
 	org	$f800				
 
 start
+	stx nextblock
+	eor nextblock
+	sty nextblock
+	eor nextblock
+	ldx #00
+ir_loop
+	eor $00,x
+	inx
+	bne ir_loop
+	and	#$0f
+	sta nextblock
 
 ;Set Stack and all up..
 
@@ -561,13 +571,17 @@ stopped
 
 ;Use new block next time
 
-	ldx	nextblock
+	ldx #00
+	lda nextblock
+ir_loop1
+	eor $00,x
+	inx
+	bne ir_loop1
+	and	#$0f
+	sta	nextblock
+	tax
 	lda	blocks,x
 	sta	blkid
-	inx
-	txa
-	and	#$3f
-	sta	nextblock
 
 	lda	#6
 	sta	blkx
@@ -1035,9 +1049,9 @@ blktab
 ;Block waves ( not very random at moment,, sorry )
 
 blocks
-	repeat 4
+	;;repeat 4
 	dc	bx,rs,rs1,ls,ls1,tp,tp1,tp2,tp3,ll,ll1,rl,rl1,ln,ln1,bx
-	repend
+	;;repend
 
 
 ;Score messages
