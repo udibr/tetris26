@@ -16,7 +16,7 @@ dasm tetris.s -f3 -otetris.bin
 #Run
 
 ```sh
-    stella tetris.bin
+stella tetris.bin
 ```
 #More info
 * http://www.dwheeler.com/6502/oneelkruns/asm1step.html
