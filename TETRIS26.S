@@ -199,22 +199,22 @@ eov			ds 0				;End of variables
 	org	$f800				
 
 start
+	sei ; prevent maskable interrupts
+	cld ; CLear Decimal
+; seed
 	stx nextblock
 	eor nextblock
 	sty nextblock
 	eor nextblock
-	ldx #00
+	ldx #$ff
 ir_loop
-	eor $00,x
-	inx
+	eor $00ff,x
+	dex
 	bne ir_loop
 	and	#$0f
-	sta nextblock
+	sta $01ff ; store the random nextblock on the stack end
 
 ;Set Stack and all up..
-
-	sei
-	cld
 	ldx	#$ff
 	txs
 
@@ -222,9 +222,12 @@ ir_loop
 
 	lda	#0
 clear
-	sta	$ff,x
+	sta	$00ff,x
 	dex
 	bne	clear
+
+	lda $01ff ; move random nextblock to its place
+	sta nextblock
 
 ;
 ;Set Joypad to input
