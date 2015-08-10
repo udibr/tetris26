@@ -10,12 +10,14 @@ then you will have to build a new ROM as follows:
 * [Download](http://sourceforge.net/projects/dasm-dillon/files/dasm-dillon/2.20.11/dasm-2.20.11.tar.gz/download) dasm
 * Compile:
 
-    dasm tetris.s -f3 -otetris.bin
-
+```sh
+dasm tetris.s -f3 -otetris.bin
+```
 #Run
 
-    /Applications/Stella.app/Contents/MacOS/Stella TETRIS26.BIN
-
+```sh
+    stella tetris.bin
+```
 #More info
 * http://www.dwheeler.com/6502/oneelkruns/asm1step.html
 * http://www.6502.org/tutorials/6502opcodes.html
