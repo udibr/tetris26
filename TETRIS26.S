@@ -90,8 +90,8 @@ blkx		ds 1			;Block X start
 blkid		ds 1			;Block type (include rotation)
 save		ds 1			;Saved copy for use in move not allowed
 save1		ds 1
-nextblock	ds 1			;Next type of block
-counter		ds 1			;State counter 
+seed		ds 1			;Next type of block
+counter		ds 1			;State counter
 gamespeed	ds 1			;Reload value ( Always multiple of 4)
 score		ds 2			;Game score ( 4 digit BCD )
 message		ds 1			;Flash message ( Also used for game over )
@@ -131,7 +131,7 @@ eov			ds 0				;End of variables
 	lda	#{3}
 	sta	GRP0
 	sta	RESP0
-	
+
 	lda	#{4}
 	sta	GRP0
 	sta	RESP0
@@ -148,7 +148,7 @@ eov			ds 0				;End of variables
 	sta	GRP0
 	sta	RESP0
 
-	
+
 	ENDM
 
 	MAC	line2
@@ -174,7 +174,7 @@ eov			ds 0				;End of variables
 	lda	#{3}
 	sta	GRP0
 	sta	RESP0
-	
+
 	lda	#{4}
 	sta	GRP0
 	sta	RESP0
@@ -187,7 +187,7 @@ eov			ds 0				;End of variables
 	sta	GRP0
 	sta	RESP0+$100
 
-	
+
 	ENDM
 
 
@@ -196,23 +196,23 @@ eov			ds 0				;End of variables
 
 	SEG code
 
-	org	$f800				
+	org	$f800
 
 start
 	sei ; prevent maskable interrupts
 	cld ; CLear Decimal
-; seed
-	stx nextblock
-	eor nextblock
-	sty nextblock
-	eor nextblock
-	ldx #$ff
+; seed random number generator by xoring A, X, Y and all memory
+	stx seed
+	eor seed
+	sty seed
+	eor seed
+	ldx #0
 ir_loop
-	eor $00ff,x
-	dex
+	eor $0,x
+	inx
 	bne ir_loop
-	and	#$0f
-	sta $01ff ; store the random nextblock on the stack end
+	sta seed
+	sta $ff ; store at seed at stack end
 
 ;Set Stack and all up..
 	ldx	#$ff
@@ -222,12 +222,12 @@ ir_loop
 
 	lda	#0
 clear
-	sta	$00ff,x
+	sta	$ff,x
 	dex
 	bne	clear
 
-	lda $01ff ; move random nextblock to its place
-	sta nextblock
+	lda $ff ; move random seed to its place
+	sta seed
 
 ;
 ;Set Joypad to input
@@ -237,10 +237,7 @@ clear
 
 ;Make test tetris screen...
 
-	lda	#6
-	sta	blkx
-	lda	#21
-	sta	blkoff
+	jsr randomblk
 
 	lda	#16
 	sta	gamespeed
@@ -314,7 +311,7 @@ remove
 	sta	gfxpf2+12,x
 	dex
 	bpl	remove
-	
+
 none
 
 
@@ -326,7 +323,7 @@ none
 vb
 	lda INTIM			;37 lines VBLANK ended?
 	bne	vb
-	sta	VBLANK    
+	sta	VBLANK
 
 ;
 ;	Title display goes here up to 24 lines
@@ -399,7 +396,7 @@ gap
     lda	#$1e            ;Gold blocks
 	sta	blockcol
 
-	lda	#4				;Use P0&P1 as masks 
+	lda	#4				;Use P0&P1 as masks
 	sta COLUP0
 	lda	#4
 	sta COLUP1
@@ -417,7 +414,7 @@ gap
 wp
 	dex
 	bne	wp
-	
+
 	sta	RESP0
 	sta RESP1
 
@@ -521,7 +518,7 @@ inner
 ;Over scan routine... Use timer...
 
 
-	lda	#2	   		;First line turns on VBLANK 
+	lda	#2	   		;First line turns on VBLANK
 	sta	WSYNC
 	sta	VBLANK
 
@@ -573,23 +570,7 @@ stopped
 	jsr	drawblock
 
 ;Use new block next time
-
-	ldx #00
-	lda nextblock
-ir_loop1
-	eor $00,x
-	inx
-	bne ir_loop1
-	and	#$0f
-	sta	nextblock
-	tax
-	lda	blocks,x
-	sta	blkid
-
-	lda	#6
-	sta	blkx
-	lda	#21
-	sta	blkoff
+	jsr randomblk
 
 ;Now is a good time to check for game over..
 
@@ -928,7 +909,39 @@ scoreline
 	rts
 
 
+;
+;Random Number generator
+;
+random
+	lda seed
+	beq random_doEor
+	asl
+	beq random_noEor ;if the input was $80, skip the EOR
+	bcc random_noEor
+random_doEor
+	eor #$1d
+random_noEor
+	sta seed
+	; XOR all memory including the seed
+	lda #0
+	ldx #0
+random_loop
+	eor $0,x
+	inx
+	bne random_loop
+	rts
 
+randomblk
+	jsr random
+	and	#$0f
+	tax
+	lda	blocks,x
+	sta	blkid
+	lda	#6
+	sta	blkx
+	lda	#21
+	sta	blkoff
+	rts
 
 ;
 ;Random block list ( I know it is wasteful, but I've go memory to spare
